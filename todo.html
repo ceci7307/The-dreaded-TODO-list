@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>To Do List</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      #article {
+        border: solid 2px rgb(195, 160, 230);
+
+        width: 40;
+        padding: 1vw;
+        margin: 1vw;
+      }
+
+      .container {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+      section > main {
+        margin: auto;
+        width: 80%;
+      }
+
+      [type="text"],
+      textarea,
+      [type="submit"] {
+        display: block;
+        margin-bottom: 1.5vw;
+      }
+
+      form {
+        margin: auto;
+        width: 30%;
+      }
+      #div {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        margin: 1vw;
+      }
+      #knap {
+        width: 100%;
+        background-color: rgb(195, 160, 230);
+        height: 2.5em;
+        font-size: 1em;
+        cursor: pointer;
+      }
+      #knap:hover {
+        animation-name: exampleKnap;
+        animation-duration: 1s;
+        animation-iteration-count: infinite;
+      }
+      #done {
+        width: 100%;
+        background-color: rgb(195, 160, 230);
+        height: 2.5em;
+        font-size: 1em;
+        cursor: pointer;
+        margin-top: 1vw;
+      }
+      #done:hover {
+        animation-name: exampleKnap;
+        animation-duration: 1s;
+        animation-iteration-count: infinite;
+      }
+
+      input[type="text"],
+      textarea {
+        width: 100%;
+        height: 2vw;
+
+        outline: 0;
+        border: none;
+        border-bottom: solid 1px rgb(230, 227, 227);
+      }
+
+      input[type="text"]:focus {
+        animation-name: example;
+        animation-duration: 1s;
+        animation-iteration-count: infinite;
+      }
+      textarea:focus {
+        animation-name: example;
+        animation-duration: 1s;
+        animation-iteration-count: infinite;
+        outline: 0;
+      }
+      @keyframes example {
+        0% {
+          border: solid 3px rgb(195, 160, 230);
+        }
+        25% {
+          border: solid 3px rgb(189, 148, 230);
+        }
+        50% {
+          border: solid 3px rgb(177, 122, 231);
+        }
+        100% {
+          border: solid 3px rgb(157, 75, 238);
+        }
+      }
+      @keyframes exampleKnap {
+        0% {
+          background-color: rgb(195, 160, 230);
+        }
+        25% {
+          background-color: rgb(189, 148, 230);
+        }
+        50% {
+          background-color: rgb(177, 122, 231);
+        }
+        100% {
+          background-color: rgb(157, 75, 238);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <form id="formular">
+      <div id="div">
+        <span>Overskrift</span>
+        <input type="text" name="overskrift" placeholder="Fx. Lav lektier" />
+        <span>Deadline</span>
+        <input
+          type="text"
+          name="deadline"
+          placeholder="Fx. På mandag kl. 14:30"
+        />
+        <span>Opgavebeskrivelse:</span>
+        <textarea
+          cols="30"
+          rows="10"
+          name="beskrivelse"
+          placeholder="fx. lav lektier til i morgen og fredag"
+        ></textarea>
+        <span>Privat</span>
+        <input type="radio" name="begivenhedstype" />
+        <span>Skole</span>
+        <input type="radio" name="begivenhedstype" />
+        <span>Arbejde</span>
+        <input type="radio" name="begivenhedstype" />
+        <span>Andet</span>
+        <input type="radio" name="begivenhedstype" />
+      </div>
+      <br />
+      <input id="knap" type="submit" name="addTodo" value="Tilføj" />
+    </form>
+    <section>
+      <main class="container"></main>
+    </section>
+    <template id="template">
+      <article id="article">
+        <h1 class="data-overskrift"></h1>
+        <p class="data-task"></p>
+        <p class="data-deadline"></p>
+        <div class="data-begivenhedstype"></div>
+        <button id="done" class="slet">Done</button>
+      </article>
+    </template>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", get);
+      //GET
+      function get() {
+        // Syncs data / Finds data
+        fetch("https://todolist-dd87.restdb.io/rest/todo?", {
+          method: "get",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "x-apikey": "5c811360cac6621685acbc6d",
+            "cache-control": "no-cache"
+          }
+        })
+          .then(res => res.json())
+          .then(data => {
+            data.forEach(showData);
+            console.log(data);
+          });
+      }
+
+      //POST
+      function post(nyTodo) {
+        //sends a request to add new data to the datasheet
+        const postData = JSON.stringify(nyTodo);
+        fetch("https://todolist-dd87.restdb.io/rest/todo?", {
+          method: "post",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "x-apikey": "5c811360cac6621685acbc6d",
+            "cache-control": "no-cache"
+          },
+          body: postData
+        })
+          .then(res => res.json())
+          .then(data => {
+            console.log(data);
+            showData(data);
+          });
+      }
+
+      document.querySelector("#formular");
+      formular.addEventListener("submit", e => {
+        formular.elements.addTodo.disabled = true; //Ikke nødvendig
+        e.preventDefault();
+        console.log("submitted");
+        const payload = {
+          overskrift: formular.elements.overskrift.value,
+          task: formular.elements.beskrivelse.value,
+          deadline: formular.elements.deadline.value,
+          begivenhedstype: formular.elements.begivenhedstype.value
+        };
+        post(payload);
+      });
+
+      function slet(id) {
+        // Deletes data. Kaldes i Show data
+
+        fetch("https://todolist-dd87.restdb.io/rest/todo?" + id, {
+          method: "delete",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "x-apikey": "5c811360cac6621685acbc6d",
+            "cache-control": "no-cache"
+          }
+        })
+          .then(res => res.json())
+          .then(data => console.log(data));
+      }
+
+      //SHOW DATA
+      function showData(todo) {
+        const template = document.querySelector("#template").content;
+        const klon = template.cloneNode(true);
+        klon.querySelector(".data-overskrift").textContent = todo.overskrift;
+        klon.querySelector(".data-task").textContent = todo.task;
+        klon.querySelector(".data-deadline").textContent = todo.deadline;
+        klon.querySelector(".data-begivenhedstype").textContent =
+          todo.begivenhedstype;
+        klon.querySelector("#article").dataset.id = todo._id;
+        console.log(todo._id);
+        klon.querySelector(".slet").addEventListener("click", e => {
+          //console.log(e.target);
+          e.target.parentElement.remove();
+          slet(todo._id);
+        });
+
+        document.querySelector(".container").appendChild(klon);
+      }
+    </script>
+  </body>
+</html>
